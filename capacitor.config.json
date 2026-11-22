@@ -1,0 +1,8 @@
+{
+  "appId": "com.prassuspam.openstudioaudio",
+  "appName": "OpenStudio Audio",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
