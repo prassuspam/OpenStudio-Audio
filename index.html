@@ -20,7 +20,14 @@
 </div>
 <script>
 const $=id=>document.getElementById(id);
-let ctx=null,tracks=[],selected=null,px=90,playhead=0,playing=false,raf=0,origin=0,playOrigin=0,sources=[],masterGain=null,drag=null,scrubbing=false;\nconst undoStack=[],redoStack=[];let restoringHistory=false;\nfunction snapshot(){return{tracks:tracks.map(t=>({...t,clips:t.clips.map(c=>({...c}))})),selected,playhead}}\nfunction remember(){if(restoringHistory)return;undoStack.push(snapshot());if(undoStack.length>100)undoStack.shift();redoStack.length=0;historyButtons()}\nfunction historyButtons(){$('undo').disabled=!undoStack.length;$('redo').disabled=!redoStack.length}\nfunction restore(state){restoringHistory=true;stop();tracks=state.tracks.map(t=>({...t,clips:t.clips.map(c=>({...c}))}));selected=state.selected;playhead=state.playhead;render();restoringHistory=false;historyButtons()}\nfunction undo(){if(!undoStack.length)return;redoStack.push(snapshot());restore(undoStack.pop());$('status').textContent='Undo'}\nfunction redo(){if(!redoStack.length)return;undoStack.push(snapshot());restore(redoStack.pop());$('status').textContent='Redo'}
+let ctx=null,tracks=[],selected=null,px=90,playhead=0,playing=false,raf=0,origin=0,playOrigin=0,sources=[],masterGain=null,drag=null,scrubbing=false;
+const undoStack=[],redoStack=[];let restoringHistory=false;
+function snapshot(){return{tracks:tracks.map(t=>({...t,clips:t.clips.map(c=>({...c}))})),selected,playhead}}
+function remember(){if(restoringHistory)return;undoStack.push(snapshot());if(undoStack.length>100)undoStack.shift();redoStack.length=0;historyButtons()}
+function historyButtons(){$('undo').disabled=!undoStack.length;$('redo').disabled=!redoStack.length}
+function restore(state){restoringHistory=true;stop();tracks=state.tracks.map(t=>({...t,clips:t.clips.map(c=>({...c}))}));selected=state.selected;playhead=state.playhead;render();restoringHistory=false;historyButtons()}
+function undo(){if(!undoStack.length)return;redoStack.push(snapshot());restore(undoStack.pop());$('status').textContent='Undo'}
+function redo(){if(!redoStack.length)return;undoStack.push(snapshot());restore(redoStack.pop());$('status').textContent='Redo'}
 const uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
 const fmt=s=>{s=Math.max(0,s||0);return String(Math.floor(s/60)).padStart(2,'0')+':'+(s%60).toFixed(2).padStart(5,'0')};
 function audioCtx(){if(!ctx){ctx=new(window.AudioContext||window.webkitAudioContext)();masterGain=ctx.createGain();masterGain.gain.value=+$('master').value;masterGain.connect(ctx.destination)}if(ctx.state==='suspended')ctx.resume();return ctx}
